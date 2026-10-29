@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cotizador de Transporte</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f2f4f7;
+            color: #222;
+        }
+
+        .contenedor {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .encabezado {
+            background: #12345a;
+            color: white;
+            text-align: center;
+            padding: 25px 15px;
+        }
+
+        .encabezado h1 {
+            margin: 0 0 8px;
+            font-size: 27px;
+        }
+
+        .encabezado p {
+            margin: 0;
+            font-size: 15px;
+        }
+
+        .contenido {
+            padding: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin: 17px 0 7px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd2d9;
+            border-radius: 7px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .grupo-direccion {
+            display: flex;
+            gap: 8px;
+        }
+
+        .grupo-direccion input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        button {
+            border: none;
+            border-radius: 7px;
+            padding: 12px 15px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .boton-mapa {
+            background: #e4ecf5;
+            color: #12345a;
+            white-space: nowrap;
+        }
+
+        .boton-mapa:hover {
+            background: #d2dfef;
+        }
+
+        .fila {
+            display: flex;
+            gap: 12px;
+        }
+
+        .fila > div {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .boton-calcular {
+            width: 100%;
+            margin-top: 25px;
+            background: #12345a;
+            color: white;
+            font-size: 17px;
+        }
+
+        .boton-calcular:hover {
+            background: #1c4d80;
+        }
+
+        .resultado {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #edf7ee;
+            border: 1px solid #b7dfbb;
+        }
+
+        .resultado h2 {
+            margin-top: 0;
+            color: #20652b;
+        }
+
+        .precio {
+            font-size: 32px;
+            font-weight: bold;
+            color: #20652b;
+            margin: 12px 0;
+        }
+
+        .detalle {
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+        }
+
+        .boton-whatsapp {
+            display: block;
+            width: 100%;
+            margin-top: 18px;
+            background: #25d366;
+            color: white;
+            font-size: 16px;
+        }
+
+        .boton-whatsapp:hover {
+            background: #1db954;
+        }
+
+        .nota {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 10px;
+            }
+
+            .contenido {
+                padding: 17px;
+            }
+
+            .grupo-direccion {
+                flex-direction: column;
+            }
+
+            .boton-mapa {
+                width: 100%;
+            }
+
+            .fila {
+                gap: 8px;
+            }
+
+            .encabezado h1 {
+                font-size: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+    <header class="encabezado">
+        <h1>COTIZADOR DE TRANSPORTE</h1>
+        <p>Calcula el precio de tu viaje de forma rápida y sencilla</p>
+    </header>
+
+    <main class="contenido">
+
+        <label for="vehiculo">Tipo de vehículo</label>
+
+        <select id="vehiculo">
+            <option value="estandar">Auto estándar — 4 pasajeros</option>
+            <option value="xlMediano">XL mediano — 6 pasajeros</option>
+            <option value="xlGrande">XL grande — 7 pasajeros</option>
+        </select>
+
+        <label for="origen">Lugar de origen</label>
+
+        <div class="grupo-direccion">
+            <input
+                type="text"
+                id="origen"
+                placeholder="Ingresa el punto de partida"
+            >
+
+            <button
+                type="button"
+                class="boton-mapa"
+                onclick="buscarEnMapa('origen')"
+            >
+                📍 Buscar en mapa
+            </button>
+        </div>
+
+        <label for="destino">Lugar de destino</label>
+
+        <div class="grupo-direccion">
+            <input
+                type="text"
+                id="destino"
+                placeholder="Ingresa el destino"
+            >
+
+            <button
+                type="button"
+                class="boton-mapa"
+                onclick="buscarEnMapa('destino')"
+            >
+                📍 Buscar en mapa
+            </button>
+        </div>
+
+        <label for="kilometros">Distancia del viaje (km)</label>
+
+        <input
+            type="number"
+            id="kilometros"
+            min="0.1"
+            step="0.1"
+            placeholder="Ejemplo: 40"
+        >
+
+        <label>Tiempo estimado de viaje</label>
+
+        <div class="fila">
+            <div>
+                <input
+                    type="number"
+                    id="horas"
+                    min="0"
+                    step="1"
+                    value="1"
+                    placeholder="Horas"
+                    aria-label="Horas de viaje"
+                >
+                <small>Horas</small>
+            </div>
+
+            <div>
+                <input
+                    type="number"
+                    id="minutos"
+                    min="0"
+                    max="59"
+                    step="1"
+                    value="0"
+                    placeholder="Minutos"
+                    aria-label="Minutos de viaje"
+                >
+                <small>Minutos</small>
+            </div>
+        </div>
+
+        <button
+            type="button"
+            class="boton-calcular"
+            onclick="calcularCotizacion()"
+        >
+            CALCULAR COTIZACIÓN
+        </button>
+
+        <section class="resultado" id="resultado" aria-live="polite">
+            <h2>Resumen de tu cotización</h2>
+
+            <div class="detalle" id="detalle"></div>
+
+            <div class="precio" id="precio"></div>
+
+            <button
+                type="button"
+                class="boton-whatsapp"
+                onclick="enviarWhatsApp()"
+            >
+                📲 Enviar cotización por WhatsApp
+            </button>
+        </section>
+
+        <p class="nota">
+            La cotización se calcula según la distancia y el tiempo
+            de viaje ingresados. Verifica estos datos antes de confirmar
+            el precio con el cliente.
+        </p>
+
+    </main>
+</div>
+
+<script>
+    // TARIFAS DEL SERVICIO
+    const tarifas = {
+        estandar: {
+            nombre: "Auto estándar — 4 pasajeros",
+            kilometro: 2.00,
+            hora: 25.00
+        },
+
+        xlMediano: {
+            nombre: "XL mediano — 6 pasajeros",
+            kilometro: 2.60,
+            hora: 32.50
+        },
+
+        xlGrande: {
+            nombre: "XL grande — 7 pasajeros",
+            kilometro: 2.60,
+            hora: 32.50
+        }
+    };
+
+    let ultimaCotizacion = null;
+
+    // ABRIR GOOGLE MAPS PARA BUSCAR UNA DIRECCIÓN
+    function buscarEnMapa(campo) {
+        const direccion = document.getElementById(campo).value.trim();
+
+        const busqueda = direccion
+            ? direccion
+            : "Buscar una dirección";
+
+        const url =
+            "https://www.google.com/maps/search/?api=1&query=" +
+            encodeURIComponent(busqueda);
+
+        window.open(url, "_blank");
+    }
+
+    // CALCULAR PRECIO
+    function calcularCotizacion() {
+        const vehiculo = document.getElementById("vehiculo").value;
+        const origen = document.getElementById("origen").value.trim();
+        const destino = document.getElementById("destino").value.trim();
+
+        const km = Number(document.getElementById("kilometros").value);
+        const horas = Number(document.getElementById("horas").value);
+        const minutos = Number(document.getElementById("minutos").value);
+
+        if (!origen || !destino) {
+            alert("Por favor, ingresa el origen y el destino.");
+            return;
+        }
+
+        if (
+            document.getElementById("kilometros").value === "" ||
+            !Number.isFinite(km) ||
+            km <= 0
+        ) {
+            alert("Ingresa una distancia válida en kilómetros.");
+            return;
+        }
+
+        if (
+            document.getElementById("horas").value === "" ||
+            document.getElementById("minutos").value === "" ||
+            !Number.isFinite(horas) ||
+            !Number.isFinite(minutos) ||
+            horas < 0 ||
+            minutos < 0 ||
+            minutos > 59 ||
+            !Number.isInteger(horas) ||
+            !Number.isInteger(minutos) ||
+            (horas === 0 && minutos === 0)
+        ) {
+            alert("Ingresa un tiempo de viaje válido.");
+            return;
+        }
+
+        const tarifa = tarifas[vehiculo];
+
+        const tiempoTotal = horas + minutos / 60;
+
+        const costoDistancia = km * tarifa.kilometro;
+        const costoTiempo = tiempoTotal * tarifa.hora;
+
+        const total = costoDistancia + costoTiempo;
+
+        ultimaCotizacion = {
+            vehiculo: tarifa.nombre,
+            origen: origen,
+            destino: destino,
+            km: km,
+            horas: horas,
+            minutos: minutos,
+            costoDistancia: costoDistancia,
+            costoTiempo: costoTiempo,
+            total: total
+        };
+
+        document.getElementById("detalle").innerHTML = `
+            <strong>Vehículo:</strong> ${escaparHTML(tarifa.nombre)}<br>
+            <strong>Origen:</strong> ${escaparHTML(origen)}<br>
+            <strong>Destino:</strong> ${escaparHTML(destino)}<br>
+            <strong>Distancia:</strong> ${km.toLocaleString("es-PE")} km<br>
+            <strong>Tiempo:</strong> ${horas} h ${minutos} min<br>
+            <strong>Costo por distancia:</strong>
+            S/ ${formatear(costoDistancia)}<br>
+            <strong>Costo por tiempo:</strong>
+            S/ ${formatear(costoTiempo)}
+        `;
+
+        document.getElementById("precio").textContent =
+            "Total: S/ " + formatear(total);
+
+        document.getElementById("resultado").style.display = "block";
+
+        document.getElementById("resultado").scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+    }
+
+    // FORMATO DE MONEDA
+    function formatear(numero) {
+        return numero.toLocaleString("es-PE", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    // EVITAR QUE LOS DATOS INGRESADOS SE INTERPRETEN COMO HTML
+    function escaparHTML(texto) {
+        return texto.replace(/[&<>"']/g, function(caracter) {
+            const equivalencias = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            };
+
+            return equivalencias[caracter];
+        });
+    }
+
+    // ENVIAR COTIZACIÓN POR WHATSAPP
+    function enviarWhatsApp() {
+        if (!ultimaCotizacion) {
+            alert("Primero debes calcular la cotización.");
+            return;
+        }
+
+        const c = ultimaCotizacion;
+
+        const mensaje =
+            "🚘 *COTIZACIÓN DE TRANSPORTE*%0A%0A" +
+            "*Vehículo:* " + c.vehiculo + "%0A" +
+            "*Origen:* " + c.origen + "%0A" +
+            "*Destino:* " + c.destino + "%0A" +
+            "*Distancia:* " + c.km + " km%0A" +
+            "*Tiempo:* " + c.horas + " h " + c.minutos + " min%0A" +
+            "*Precio por distancia:* S/ " +
+            formatear(c.costoDistancia) + "%0A" +
+            "*Precio por tiempo:* S/ " +
+            formatear(c.costoTiempo) + "%0A%0A" +
+            "*PRECIO TOTAL: S/ " + formatear(c.total) + "*";
+
+        // Puedes colocar aquí el número de WhatsApp del negocio.
+        // Usa el código de país y el número, sin +, espacios ni guiones.
+        const numeroWhatsApp = "";
+
+        const url = numeroWhatsApp
+            ? "https://wa.me/" + numeroWhatsApp + "?text=" +
+                encodeURIComponent(decodeURIComponent(mensaje))
+            : "https://wa.me/?text=" +
+                encodeURIComponent(
+                    mensaje
+                        .replace(/%0A/g, "\n")
+                        .replace(/\*/g, "*")
+                );
+
+        window.open(url, "_blank");
+    }
+</script>
+
+</body>
+</html>
